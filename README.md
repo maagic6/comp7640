@@ -13,8 +13,8 @@ A FastAPI-based e-commerce platform API with MySQL database.
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/your-username/ecommerce-platform-api.git
-cd ecommerce-platform-api
+git clone https://github.com/your-username/comp7640-python-backend.git
+cd comp7640-python-backend
 ```
 
 ### 2. Create Virtual Environment
