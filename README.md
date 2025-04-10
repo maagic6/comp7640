@@ -46,6 +46,8 @@ DB_NAME=your_db_name
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
+or python main.py
+
 Default customer with ID 1 will be added during initialization.
 
 ### 6. Access the API

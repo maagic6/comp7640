@@ -46,11 +46,7 @@ app.include_router(vendors.router)
 app.include_router(products.router)
 app.include_router(transactions.router)
 
-
-# --- Mount Static files LAST ---
-# Mount static files AFTER API routers to avoid conflicts if an API route
-# accidentally matches a static file path.
-# Use html=True to automatically serve index.html for the root path '/'.
+# mount a
 app.mount(
     "/",
     StaticFiles(directory=STATIC_DIR, html=True),
