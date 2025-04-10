@@ -5,7 +5,7 @@ A FastAPI-based e-commerce platform API with MySQL database.
 ## Prerequisites
 
 - Python 3.8+
-- MySQL
+- MySQL server (Local MariaDB was used for testing)
 - Git
 
 ## Project Setup
@@ -13,8 +13,8 @@ A FastAPI-based e-commerce platform API with MySQL database.
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/your-username/comp7640-python-backend.git
-cd comp7640-python-backend
+git clone https://github.com/maagic6/comp7640.git
+cd comp7640
 ```
 
 ### 2. Create Virtual Environment
@@ -46,9 +46,11 @@ DB_NAME=your_db_name
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
+Default customer with ID 1 will be added during initialization.
+
 ### 6. Access the API
 
-Open your browser or use a tool like Postman to access the API at `http://localhost:8000/docs`.
+Access the API through the frontend at `http://localhost:8000`.
 
 ### 7. Project Structure
 
@@ -58,4 +60,5 @@ Open your browser or use a tool like Postman to access the API at `http://localh
 - `app/services/`: Business logic and services.
 - `app/api/`: API endpoints and routes.
 - `app/tests/`: Test cases for unit testing.
+- `app/views/`: Frontend HTML and JavaScript.
 - `app/main.py`: Entry point for the FastAPI application.
