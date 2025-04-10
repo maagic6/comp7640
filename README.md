@@ -52,7 +52,7 @@ Default customer with ID 1 will be added during initialization.
 
 ### 6. Access the API
 
-Access the API through the frontend at `http://localhost:8000`.
+Access the API through the frontend at `http://localhost:8000`, or access the API directly through `http://localhost:8000/docs`.
 
 ### 7. Project Structure
 

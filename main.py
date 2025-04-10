@@ -1,32 +1,30 @@
-# main.py
-
 from fastapi import FastAPI
-# --- Add imports ---
+
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
-# -----------------
 from app.core.config import settings
-# Import ONLY necessary routers now
 from app.api.endpoints import vendors, products, transactions, health
-# --- REMOVE frontend router import if it's empty ---
-# from app.api.endpoints import frontend
-# ---------------------------------------------------
 from app.core.db_init import init_db
-# from fastapi.middleware.cors import CORSMiddleware # Keep if needed
 
-# --- Define Static Directory Path ---
-# Calculate path relative to main.py (assuming main.py is in the root or similar)
-# Adjust if main.py is elsewhere. If main.py is at the root:
 APP_DIR = Path(__file__).resolve().parent
 STATIC_DIR = APP_DIR / "app" / "views"
-# ------------------------------------
 
 
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
-    description="""...""",
-    license_info={...}
+    description="""
+    E-commerce Platform API with vendor, product, and transaction management.
+    Provides endpoints for:
+    - Vendor onboarding and listing.
+    - Product browsing, searching, and creation.
+    - Transaction creation.
+    - Health checks.
+    """,
+    license_info={
+        "name": "Apache 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0.html",
+    }
 )
 
 @app.on_event("startup")
@@ -39,14 +37,13 @@ async def startup_event():
         print(f"Warning: Database initialization failed: {str(e)}")
 
 
-# --- Include API routers ---
-# These handle specific API paths like /products, /vendors, etc.
+# api routers
 app.include_router(health.router)
 app.include_router(vendors.router)
 app.include_router(products.router)
 app.include_router(transactions.router)
 
-# mount a
+# mount
 app.mount(
     "/",
     StaticFiles(directory=STATIC_DIR, html=True),
@@ -57,6 +54,4 @@ app.mount(
 
 if __name__ == "__main__":
     import uvicorn
-    # Uvicorn run command remains the same
-    # Make sure you have 'python-multipart' installed: pip install python-multipart
-    uvicorn.run(app, host="0.0.0.0", port=8000) # Removed reload for clarity, add back if needed
+    uvicorn.run(app, host="0.0.0.0", port=8000)
