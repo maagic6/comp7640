@@ -72,6 +72,18 @@ document.addEventListener('DOMContentLoaded', function() {
         if (cart[productId]) { cart[productId].quantity += quantityToAdd; } else { cart[productId] = { name: productName, price: productPrice, quantity: quantityToAdd }; }
         updateCartDisplay();
     }
+
+    // new: remove from cart function
+    function removeFromCart(productId) {
+        productId = parseInt(productId);
+        if (isNaN(productId)) { console.error("Invalid product ID for removal:", productId); return; }
+        if (cart[productId]) {
+            delete cart[productId]; // remove item
+            updateCartDisplay(); // update badge
+            populateCheckoutModal(); // refresh modal list
+        } else { console.warn(`Attempted removal of non-existent product ID ${productId}`); }
+    }
+
     function updateCartDisplay() { // updates cart badge count
         let totalItems = 0; for (const id in cart) { totalItems += cart[id].quantity; }
         if (cartItemCountBadge) { if (totalItems > 0) { setText(cartItemCountBadge, totalItems); showElement(cartItemCountBadge, 'inline-block'); } else { hideElement(cartItemCountBadge); } }
@@ -139,12 +151,58 @@ document.addEventListener('DOMContentLoaded', function() {
          .then(products => { hideElement(loadingSearch); renderProductList(searchResultsList, products); }).catch(error => { console.error('Search error:', error); hideElement(loadingSearch); setText(errorSearch, `Error: ${error.message}`); showElement(errorSearch); searchResultsList.innerHTML = '<li class="list-group-item text-danger">Failed.</li>'; });
     }
 
-    // function to populate checkout modal
+    // function to populate checkout modal (adds remove button)
     function populateCheckoutModal() {
         if (!checkoutCartList || !checkoutTotalPrice || !submitTransactionButton) { console.error("Checkout modal elements missing!"); return;}
-        checkoutCartList.innerHTML = ''; let totalPrice = 0; let itemCount = 0; const productIds = Object.keys(cart);
-        if (productIds.length === 0) { checkoutCartList.innerHTML = '<li class="list-group-item text-muted">Cart empty.</li>'; submitTransactionButton.disabled = true; }
-        else { productIds.forEach(id => { const item = cart[id]; const sub = item.price * item.quantity; totalPrice += sub; itemCount += item.quantity; const li = document.createElement('li'); li.className='list-group-item d-flex justify-content-between align-items-center cart-item-details'; li.innerHTML = `<span>${item.name} <small class="text-muted">Qty: ${item.quantity} @ $${item.price.toFixed(2)} ea.</small></span> <strong>$${sub.toFixed(2)}</strong>`; checkoutCartList.appendChild(li); }); submitTransactionButton.disabled = false; }
+        checkoutCartList.innerHTML = ''; // clear previous items
+        let totalPrice = 0;
+        let itemCount = 0;
+        const productIds = Object.keys(cart);
+
+        if (productIds.length === 0) {
+            checkoutCartList.innerHTML = '<li class="list-group-item text-muted">Cart empty.</li>';
+            submitTransactionButton.disabled = true;
+        } else {
+            productIds.forEach(id => {
+                const item = cart[id];
+                const sub = item.price * item.quantity;
+                totalPrice += sub;
+                itemCount += item.quantity;
+
+                const li = document.createElement('li');
+                li.className='list-group-item d-flex justify-content-between align-items-center cart-item-details';
+
+                // item details (name, qty, price ea)
+                const detailsSpan = document.createElement('span');
+                detailsSpan.innerHTML = `${item.name} <small class="text-muted">Qty: ${item.quantity} @ $${item.price.toFixed(2)} ea.</small>`;
+
+                // controls span (subtotal + remove button)
+                const controlsSpan = document.createElement('span');
+                controlsSpan.className = 'd-flex align-items-center'; // use flexbox for alignment
+
+                // subtotal
+                const subtotalStrong = document.createElement('strong');
+                subtotalStrong.textContent = `$${sub.toFixed(2)}`;
+                subtotalStrong.classList.add('me-3'); // margin between subtotal and button
+
+                // remove button creation
+                const removeButton = document.createElement('button');
+                removeButton.type = 'button';
+                removeButton.className = 'btn btn-sm btn-outline-danger remove-from-cart-btn'; // class for listener
+                removeButton.innerHTML = '<i class="bi bi-trash"></i>'; // trash icon
+                removeButton.setAttribute('data-product-id', id); // id to remove
+                removeButton.setAttribute('aria-label', `Remove ${item.name}`);
+
+                controlsSpan.appendChild(subtotalStrong);
+                controlsSpan.appendChild(removeButton);
+
+                li.appendChild(detailsSpan);
+                li.appendChild(controlsSpan);
+
+                checkoutCartList.appendChild(li);
+            });
+            submitTransactionButton.disabled = false;
+        }
         setText(checkoutTotalPrice, totalPrice.toFixed(2));
     }
 
@@ -264,8 +322,21 @@ document.addEventListener('DOMContentLoaded', function() {
     if (addProductForm) { addProductForm.addEventListener('submit', handleAddProductSubmit); }
     else { console.warn("Add Product form element not found."); }
 
+    // 10. remove from cart (delegation on checkout modal list)
+    if (checkoutCartList) {
+        checkoutCartList.addEventListener('click', function(event) {
+            const removeButton = event.target.closest('.remove-from-cart-btn'); // find closest remove button clicked
+            if (removeButton) {
+                const productId = removeButton.getAttribute('data-product-id');
+                if (productId) {
+                    removeFromCart(productId); // call remove function
+                } else { console.warn("Remove button missing product ID."); }
+            }
+        });
+    } else { console.warn("Checkout cart list element not found."); }
+
     // initial page load actions
     loadVendors();
     updateCartDisplay();
 
-});
+}); // end domcontentloaded

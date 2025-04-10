@@ -2,7 +2,7 @@ import pymysql
 from pymysql.err import OperationalError, InterfaceError
 from dbutils.pooled_db import PooledDB
 from app.core.config import settings
-from typing import Dict, Any
+from typing import Dict, Any, List, Union
 
 class DatabaseError(Exception):
     """Custom exception for database errors"""
@@ -36,13 +36,16 @@ class Database:
         except Exception as e:
             raise DatabaseError(f"Unexpected database error: {str(e)}")
 
-    def execute_query(self, query: str, params: tuple = None) -> Dict[str, Any]:
-        """Execute a query and return the result"""
+    def execute_query(self, query: str, params: tuple = None) -> Union[List[Dict[str, Any]], Dict[str, Any]]:
+        """Execute a query and return the result.
+        Returns List[Dict] for SELECT, Dict for others.
+        """
         try:
             with self.get_connection() as connection:
                 with connection.cursor() as cursor:
                     cursor.execute(query, params)
-                    if query.lower().startswith('select'):
+                    # strip whitespace
+                    if query.strip().lower().startswith('select'):
                         return cursor.fetchall()
                     else:
                         connection.commit()
